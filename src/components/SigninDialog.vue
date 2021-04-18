@@ -69,7 +69,7 @@ export default class SigninDialog extends Vue {
   private signinVisible!: boolean;
 
   @Prop({ type: Function, required: true })
-  private okCb!: () => void;
+  private okCb!: (userName: string, password: string) => void;
 
   @Prop({ type: Function, required: true })
   private cancelCb!: () => void;
@@ -83,9 +83,8 @@ export default class SigninDialog extends Vue {
   private async overrideOkCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid) {
-      this.okCb();
+      this.okCb(this.email, this.password);
     }
-    // TODO ErrorHandling
   }
 
   private overrideCancelCb() {

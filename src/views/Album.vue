@@ -1,6 +1,6 @@
 <template>
   <div class="album">
-    <UserHeader />
+    <UserHeader :onClickSearchCb="onClickSearchCb" />
     <v-row>
       <v-col cols="11" />
       <v-col cols="1">
@@ -9,13 +9,19 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-card class="d-flex justify-start flex-wrap">
-      <v-card v-for="n in 9" :key="n" class="ma-1">
+    <v-card class="image-container">
+      <v-card
+        v-for="p in displayPictures"
+        :key="p.fileName"
+        class="ma-1 image-container__card"
+        width="256"
+      >
         <v-img
-          :src="`https://picsum.photos/500/300?image=${n * 5 + 10}`"
-          :lazy-src="`https://picsum.photos/10/6?image=${n * 5 + 10}`"
+          :src="p.url"
+          :lazy-src="p.url"
           class="grey lighten-2"
           width="256"
+          @click="onClickImage(p)"
         >
           <template v-slot:placeholder>
             <v-row class="fill-height ma-0" align="center" justify="center">
@@ -33,6 +39,14 @@
       :okCb="uploadOkCb"
       :cancelCb="uploadCancelCb"
     />
+    <PictureDetailDialog
+      :pictureDetailDialogVisibleProp.sync="pictureDetailDialogVisible"
+      :okCb="pictureDetailUpdateOkCb"
+      :cancelCb="pictureDetailUpdateCancelCb"
+      :objectKey="selectedKey"
+      :picture="selectedPicture"
+      :tags="selectedTags"
+    />
   </div>
 </template>
 
@@ -40,26 +54,123 @@
 import { Component, Vue } from "vue-property-decorator";
 import UserHeader from "../components/UserHeader.vue";
 import UploadDialog from "../components/UploadDialog.vue";
+import PicturesAdapter from "../adapters/PicturesAdapter";
+import PictureDetailDialog from "../components/PictureDetailDialog.vue";
+import ErrorRepository from "@/repository/errorRepository";
+import { HttpError } from "@/errors/error";
 
 @Component({
   components: {
     UserHeader,
     UploadDialog,
+    PictureDetailDialog,
   },
 })
 export default class Album extends Vue {
   private uploadVisible = false;
 
+  private pictureDetailDialogVisible = false;
+
+  private displayPictures: Array<any> = [];
+
   private onClickUploadDialog() {
     this.uploadVisible = true;
   }
 
-  private uploadOkCb() {
-    this.uploadVisible = false;
+  private selectedKey = "";
+
+  private selectedPicture = "";
+
+  private selectedTags: Array<string> = [];
+
+  private uploadOkCb(picture: string, ext: string, tags: Array<string>) {
+    PicturesAdapter.postPicture({ picture: picture, ext: ext, tags: tags })
+      .then(() => {
+        this.uploadVisible = false;
+      })
+      .catch((error: HttpError) => {
+        ErrorRepository.handleHttpError(
+          this,
+          error.statusCode,
+          JSON.stringify(error.responseData)
+        );
+      });
   }
 
   private uploadCancelCb() {
     this.uploadVisible = false;
   }
+
+  private pictureDetailUpdateOkCb(key: string, tags: Array<string>) {
+    // TODO 更新の実装
+    console.log(key);
+    console.log(tags);
+    this.pictureDetailDialogVisible = false;
+  }
+
+  private pictureDetailUpdateCancelCb() {
+    this.pictureDetailDialogVisible = false;
+  }
+
+  private onClickSearchCb(tags: Array<string>) {
+    PicturesAdapter.getPictures(tags)
+      .then((res) => {
+        this.displayPictures = res.pictures.map((e) => {
+          return {
+            id: e.id,
+            url:
+              "data:image/" +
+              e.fileName.substr(e.fileName.indexOf(".") + 1) +
+              ";base64," +
+              e.picture,
+            fileName: e.fileName,
+            tags: e.tags,
+          };
+        });
+      })
+      .catch((error: HttpError) => {
+        ErrorRepository.handleHttpError(
+          this,
+          error.statusCode,
+          JSON.stringify(error.responseData)
+        );
+      });
+  }
+
+  private onClickImage(p: any) {
+    this.selectedKey = p.id;
+    this.selectedPicture = p.url;
+    this.selectedTags = p.tags;
+    this.pictureDetailDialogVisible = true;
+  }
 }
 </script>
+<style lang="scss" scoped >
+@media screen and (min-width: 769px) and (max-width: 2048px) {
+  .image-container {
+    column-count: 4;
+  }
+}
+@media screen and (min-width: 513px) and (max-width: 768px) {
+  .image-container {
+    column-count: 3;
+  }
+}
+@media screen and (min-width: 257px) and (max-width: 512px) {
+  .image-container {
+    column-count: 2;
+  }
+}
+@media screen and (max-width: 256px) {
+  .image-container {
+    column-count: 1;
+  }
+}
+.image-container {
+  column-fill: auto;
+  column-gap: 15px;
+  &__card {
+    display: inline-block;
+  }
+}
+</style>

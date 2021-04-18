@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <v-app>
+      <notifications group="top-center"></notifications>
       <router-view />
     </v-app>
   </div>

@@ -43,18 +43,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { mdiMagnify } from "@mdi/js";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { AUTH_KEY } from "@/consts/consts";
+import TagsAdapter from "@/adapters/tagsAdapter";
+import ErrorRepository from "@/repository/errorRepository";
+import { HttpError } from "@/errors/error";
+
 @Component
-export default class Header extends Vue {
-  private items = ["foo", "bar"];
+export default class UserHeader extends Vue {
+  @Prop({ type: Function, required: true })
+  private onClickSearchCb!: (tags: Array<string>) => void;
+
+  private get items(): Array<string> {
+    return this.$store.state.tags;
+  }
 
   private selected = [];
 
   private offset = true;
 
+  private timerID!: number;
+
   private onClickSearch() {
-    console.log("TBD");
+    this.onClickSearchCb(this.selected);
   }
 
   private onClickSignOut() {
@@ -63,6 +74,28 @@ export default class Header extends Vue {
 
   private onClickChangePassword() {
     console.log("TBD");
+  }
+
+  private refreshTagsFromServer() {
+    TagsAdapter.getTags()
+      .then((data) => this.$store.commit("refreshTags", data.tags))
+      .catch((error: HttpError) => {
+        ErrorRepository.handleHttpError(
+          this,
+          error.statusCode,
+          JSON.stringify(error.responseData)
+        );
+      });
+  }
+
+  created() {
+    const idKey = sessionStorage.getItem(AUTH_KEY);
+    this.refreshTagsFromServer();
+    this.timerID = setInterval(() => this.refreshTagsFromServer(), 10000);
+  }
+
+  destroyed() {
+    clearInterval(this.timerID);
   }
 }
 </script>

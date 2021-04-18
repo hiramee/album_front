@@ -27,6 +27,12 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import SigninDialog from "./SigninDialog.vue";
+import CognitoService from "@/adapters/cognito";
+import { CognitoUserSession } from "amazon-cognito-identity-js";
+import { AUTH_KEY } from "@/consts/consts";
+import ErrorRepository from "@/repository/errorRepository";
+import { HttpError } from "@/errors/error";
+import { ErrorTypes } from "@/enums/errorTypes";
 @Component({
   components: { SigninDialog },
 })
@@ -37,8 +43,21 @@ export default class Header extends Vue {
     this.signinVisible = true;
   }
 
-  private signinOkCb() {
-    this.signinVisible = false;
+  private signinOkCb(userName: string, password: string): void {
+    CognitoService.login(userName, password)
+      .then((result: CognitoUserSession) => {
+        sessionStorage.setItem(AUTH_KEY, result.getIdToken().getJwtToken());
+        this.signinVisible = false;
+      })
+      .catch((error) => {
+        // Cognitoのエラー構造に合わせる
+        ErrorRepository.handleMessage(
+          this,
+          ErrorTypes.WARN,
+          error.code,
+          error.message
+        );
+      });
   }
 
   private signinCancelCb() {

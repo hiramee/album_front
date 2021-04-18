@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialogVisible" width="500">
+  <v-dialog v-model="dialogVisible" :width="dialogWidth">
     <v-card>
       <v-card-title class="headline grey lighten-2"> {{ title }} </v-card-title>
 
@@ -34,5 +34,8 @@ export default class CommonDialog extends Vue {
 
   @Prop({ type: Function, required: true })
   private cancelCb!: () => void;
+
+  @Prop({ type: String, required: false, default: "500" })
+  private dialogWidth!: string;
 }
 </script>

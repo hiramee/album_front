@@ -1,21 +1,27 @@
 <template>
   <CommonDialog
-    :dialogVisibleProp.sync="uploadVisible"
-    title="Upload"
+    :dialogVisibleProp.sync="pictureDetailDialogVisible"
+    title="Image"
     :okCb="overrideOkCb"
     :cancelCb="overrideCancelCb"
-    :width="500"
+    dialogWidth="80%"
   >
+    <v-img
+      :src="picture"
+      :lazy-src="picture"
+      class="grey lighten-2"
+      width="100%"
+    >
+      <template v-slot:placeholder>
+        <v-row class="fill-height ma-0" align="center" justify="center">
+          <v-progress-circular
+            indeterminate
+            color="grey lighten-5"
+          ></v-progress-circular>
+        </v-row>
+      </template>
+    </v-img>
     <validation-observer ref="observer">
-      <validation-provider v-slot="{ errors }" name="file" rules="required">
-        <v-file-input
-          accept="image/*"
-          :error-messages="errors"
-          label="File input"
-          v-model="file"
-          required
-        ></v-file-input>
-      </validation-provider>
       <validation-provider v-slot="{ errors }" name="tags" rules="required">
         <v-combobox
           v-model="selected"
@@ -37,13 +43,14 @@ import { Component, PropSync, Prop, Vue } from "vue-property-decorator";
 import { required } from "vee-validate/dist/rules";
 import { extend, ValidationObserver, ValidationProvider } from "vee-validate";
 import CommonDialog from "./CommonDialog.vue";
+import _ from "lodash";
 
 extend("required", {
   ...required,
   message: "{_field_} can not be empty",
 });
 
-interface uploadDialogType extends Vue {
+interface PictureDetailDialogType extends Vue {
   validate(): boolean;
 }
 
@@ -54,21 +61,28 @@ interface uploadDialogType extends Vue {
     ValidationObserver,
   },
 })
-export default class uploadDialog extends Vue {
+export default class PictureDetailDialog extends Vue {
   $refs!: {
-    observer: uploadDialogType;
+    observer: PictureDetailDialogType;
   };
 
-  @PropSync("uploadVisibleProp", { type: Boolean, required: true })
-  private uploadVisible!: boolean;
+  @PropSync("pictureDetailDialogVisibleProp", { type: Boolean, required: true })
+  private pictureDetailDialogVisible!: boolean;
 
   @Prop({ type: Function, required: true })
-  private okCb!: (picture: string, ext: string, tags: Array<string>) => void;
+  private okCb!: (objectKey: string, tags: Array<string>) => void;
 
   @Prop({ type: Function, required: true })
   private cancelCb!: () => void;
 
-  private file: File | null = null;
+  @Prop({ type: String, required: true, default: "" })
+  private objectKey!: string;
+
+  @Prop({ type: String, required: true })
+  private picture!: string;
+
+  @Prop({ type: Array, required: true })
+  private tags: Array<string> = [];
 
   private get items(): Array<string> {
     return this.$store.state.tags;
@@ -79,19 +93,7 @@ export default class uploadDialog extends Vue {
   private async overrideOkCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          const picture = reader.result
-            .toString()
-            .substr(reader.result.toString().indexOf(",") + 1);
-          const ext = this.file?.name.substr(this.file?.name.indexOf(".") + 1);
-          this.okCb(picture, ext!, this.selected);
-        }
-      };
-      if (this.file) {
-        reader.readAsDataURL(this.file);
-      }
+      this.okCb(this.objectKey, this.selected);
     }
   }
 
@@ -101,8 +103,11 @@ export default class uploadDialog extends Vue {
   }
 
   private clear() {
-    this.file = null;
-    this.selected = [];
+    this.selected = _.cloneDeep(this.tags);
+  }
+
+  created() {
+    this.clear();
   }
 }
 </script>
