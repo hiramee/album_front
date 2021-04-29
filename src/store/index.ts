@@ -9,7 +9,7 @@ export default new Vuex.Store<MyStoreInterface>({
   },
   mutations: {
     refreshTags: (state, tags: Array<string>) => {
-      state.tags = tags;
+      state.tags = tags ?? [];
     },
   },
   modules: {},

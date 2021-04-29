@@ -2,13 +2,13 @@
   <CommonDialog
     :dialogVisibleProp.sync="signinVisible"
     title="Sign in"
-    :okCb="overrideOkCb"
-    :cancelCb="overrideCancelCb"
+    :okCb="okCb"
+    :cancelCb="cancelCb"
   >
     <validation-observer ref="observer">
       <validation-provider
         v-slot="{ errors }"
-        name="email"
+        name="E-mail"
         rules="required|email"
       >
         <v-text-field
@@ -18,7 +18,7 @@
           required
         ></v-text-field>
       </validation-provider>
-      <validation-provider v-slot="{ errors }" name="password" rules="required">
+      <validation-provider v-slot="{ errors }" name="Password" rules="required">
         <v-text-field
           v-model="password"
           :error-messages="errors"
@@ -38,6 +38,10 @@ import { Component, PropSync, Prop, Vue } from "vue-property-decorator";
 import { required, email } from "vee-validate/dist/rules";
 import { extend, ValidationObserver, ValidationProvider } from "vee-validate";
 import CommonDialog from "./CommonDialog.vue";
+import CognitoService from "@/adapters/cognito";
+import ErrorRepository from "@/repository/errorRepository";
+import MessageRepository from "@/repository/messageRepository";
+import { ErrorTypes } from "@/enums/errorTypes";
 
 extend("required", {
   ...required,
@@ -68,28 +72,36 @@ export default class SigninDialog extends Vue {
   @PropSync("signinVisibleProp", { type: Boolean, required: true })
   private signinVisible!: boolean;
 
-  @Prop({ type: Function, required: true })
-  private okCb!: (userName: string, password: string) => void;
-
-  @Prop({ type: Function, required: true })
-  private cancelCb!: () => void;
-
   private email = "";
 
   private password = "";
 
   private showPassword = false;
 
-  private async overrideOkCb() {
+  private async okCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid) {
-      this.okCb(this.email, this.password);
+      CognitoService.login(this.email, this.password)
+        .then(() => {
+          this.signinVisible = false;
+          MessageRepository.handleSuccess(this, "Signin Success");
+          this.$router.push("/album");
+        })
+        .catch((error) => {
+          // Cognitoのエラー構造に合わせる
+          ErrorRepository.handleMessage(
+            this,
+            ErrorTypes.WARN,
+            error.code,
+            error.message
+          );
+        });
     }
   }
 
-  private overrideCancelCb() {
+  private cancelCb() {
     this.clear();
-    this.cancelCb();
+    this.signinVisible = false;
   }
 
   private clear() {

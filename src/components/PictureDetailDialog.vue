@@ -2,8 +2,8 @@
   <CommonDialog
     :dialogVisibleProp.sync="pictureDetailDialogVisible"
     title="Image"
-    :okCb="overrideOkCb"
-    :cancelCb="overrideCancelCb"
+    :okCb="okCb"
+    :cancelCb="cancelCb"
     dialogWidth="80%"
   >
     <v-img
@@ -35,14 +35,24 @@
         </v-combobox>
       </validation-provider>
     </validation-observer>
+    <div>
+      <v-btn color="error" text @click="deleteCb(objectKey)" width="100%"
+        >Delete</v-btn
+      >
+    </div>
   </CommonDialog>
 </template>
 
 <script lang="ts">
-import { Component, PropSync, Prop, Vue } from "vue-property-decorator";
+import { Component, PropSync, Prop, Watch, Vue } from "vue-property-decorator";
 import { required } from "vee-validate/dist/rules";
 import { extend, ValidationObserver, ValidationProvider } from "vee-validate";
 import CommonDialog from "./CommonDialog.vue";
+import PicturesAdapter from "../adapters/PicturesAdapter";
+import ErrorRepository from "@/repository/errorRepository";
+import MessageRepository from "@/repository/messageRepository";
+import { HttpError } from "@/errors/error";
+import { PutPictureRequest } from "../adapters/messages/pictures";
 import _ from "lodash";
 
 extend("required", {
@@ -69,12 +79,6 @@ export default class PictureDetailDialog extends Vue {
   @PropSync("pictureDetailDialogVisibleProp", { type: Boolean, required: true })
   private pictureDetailDialogVisible!: boolean;
 
-  @Prop({ type: Function, required: true })
-  private okCb!: (objectKey: string, tags: Array<string>) => void;
-
-  @Prop({ type: Function, required: true })
-  private cancelCb!: () => void;
-
   @Prop({ type: String, required: true, default: "" })
   private objectKey!: string;
 
@@ -82,7 +86,7 @@ export default class PictureDetailDialog extends Vue {
   private picture!: string;
 
   @Prop({ type: Array, required: true })
-  private tags: Array<string> = [];
+  private tags!: Array<string>;
 
   private get items(): Array<string> {
     return this.$store.state.tags;
@@ -90,16 +94,42 @@ export default class PictureDetailDialog extends Vue {
 
   private selected: Array<string> = [];
 
-  private async overrideOkCb() {
+  private async okCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid) {
-      this.okCb(this.objectKey, this.selected);
+      const req: PutPictureRequest = { tags: this.selected };
+      PicturesAdapter.putPictures(this.objectKey, req)
+        .then(() => {
+          this.pictureDetailDialogVisible = false;
+          MessageRepository.handleSuccess(this, "Update Success");
+        })
+        .catch((error: HttpError) => {
+          ErrorRepository.handleHttpError(
+            this,
+            error.statusCode,
+            JSON.stringify(error.responseData)
+          );
+        });
     }
   }
 
-  private overrideCancelCb() {
-    this.clear();
-    this.cancelCb();
+  private cancelCb() {
+    this.pictureDetailDialogVisible = false;
+  }
+
+  private deleteCb(objectKey: string) {
+    PicturesAdapter.deletePictures(objectKey)
+      .then(() => {
+        this.pictureDetailDialogVisible = false;
+        MessageRepository.handleSuccess(this, "Delete Success");
+      })
+      .catch((error: HttpError) => {
+        ErrorRepository.handleHttpError(
+          this,
+          error.statusCode,
+          JSON.stringify(error.responseData)
+        );
+      });
   }
 
   private clear() {
@@ -107,6 +137,11 @@ export default class PictureDetailDialog extends Vue {
   }
 
   created() {
+    this.clear();
+  }
+
+  @Watch("pictureDetailDialogVisible")
+  changeTags() {
     this.clear();
   }
 }

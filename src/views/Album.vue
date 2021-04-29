@@ -34,15 +34,9 @@
         </v-img>
       </v-card>
     </v-card>
-    <UploadDialog
-      :uploadVisibleProp.sync="uploadVisible"
-      :okCb="uploadOkCb"
-      :cancelCb="uploadCancelCb"
-    />
+    <UploadDialog :uploadVisibleProp.sync="uploadVisible" />
     <PictureDetailDialog
       :pictureDetailDialogVisibleProp.sync="pictureDetailDialogVisible"
-      :okCb="pictureDetailUpdateOkCb"
-      :cancelCb="pictureDetailUpdateCancelCb"
       :objectKey="selectedKey"
       :picture="selectedPicture"
       :tags="selectedTags"
@@ -82,35 +76,6 @@ export default class Album extends Vue {
   private selectedPicture = "";
 
   private selectedTags: Array<string> = [];
-
-  private uploadOkCb(picture: string, ext: string, tags: Array<string>) {
-    PicturesAdapter.postPicture({ picture: picture, ext: ext, tags: tags })
-      .then(() => {
-        this.uploadVisible = false;
-      })
-      .catch((error: HttpError) => {
-        ErrorRepository.handleHttpError(
-          this,
-          error.statusCode,
-          JSON.stringify(error.responseData)
-        );
-      });
-  }
-
-  private uploadCancelCb() {
-    this.uploadVisible = false;
-  }
-
-  private pictureDetailUpdateOkCb(key: string, tags: Array<string>) {
-    // TODO 更新の実装
-    console.log(key);
-    console.log(tags);
-    this.pictureDetailDialogVisible = false;
-  }
-
-  private pictureDetailUpdateCancelCb() {
-    this.pictureDetailDialogVisible = false;
-  }
 
   private onClickSearchCb(tags: Array<string>) {
     PicturesAdapter.getPictures(tags)

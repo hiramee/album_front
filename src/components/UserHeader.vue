@@ -28,6 +28,9 @@
               </v-btn>
             </template>
             <v-list>
+              <v-list-item @click="onClickDeleteTags">
+                <v-list-item-title>Delete tags</v-list-item-title>
+              </v-list-item>
               <v-list-item @click="onClickChangePassword">
                 <v-list-item-title>Change password</v-list-item-title>
               </v-list-item>
@@ -39,17 +42,27 @@
         </li>
       </ul>
     </nav>
+    <ChangePasswordDialog
+      :changePasswordVisibleProp.sync="changePasswordVisible"
+    />
+    <DeleteTagsDialog
+      :deleteTagsVisibleProp.sync="deleteTagsVisible"
+      :refreshTagsFromServer="refreshTagsFromServer"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { AUTH_KEY } from "@/consts/consts";
 import TagsAdapter from "@/adapters/tagsAdapter";
 import ErrorRepository from "@/repository/errorRepository";
 import { HttpError } from "@/errors/error";
+import DeleteTagsDialog from "./DeleteTagsDialog.vue";
+import CognitoService from "@/adapters/cognito";
+import MessageRepository from "@/repository/messageRepository";
+import ChangePasswordDialog from "./ChangePasswordDialog.vue";
 
-@Component
+@Component({ components: { DeleteTagsDialog, ChangePasswordDialog } })
 export default class UserHeader extends Vue {
   @Prop({ type: Function, required: true })
   private onClickSearchCb!: (tags: Array<string>) => void;
@@ -64,16 +77,26 @@ export default class UserHeader extends Vue {
 
   private timerID!: number;
 
+  private deleteTagsVisible = false;
+
+  private changePasswordVisible = false;
+
   private onClickSearch() {
     this.onClickSearchCb(this.selected);
   }
 
   private onClickSignOut() {
-    console.log("TBD");
+    CognitoService.logout();
+    this.$router.push("/");
+    MessageRepository.handleSuccess(this, "Signout Success");
   }
 
   private onClickChangePassword() {
-    console.log("TBD");
+    this.changePasswordVisible = true;
+  }
+
+  private onClickDeleteTags() {
+    this.deleteTagsVisible = true;
   }
 
   private refreshTagsFromServer() {
@@ -89,7 +112,6 @@ export default class UserHeader extends Vue {
   }
 
   created() {
-    const idKey = sessionStorage.getItem(AUTH_KEY);
     this.refreshTagsFromServer();
     this.timerID = setInterval(() => this.refreshTagsFromServer(), 10000);
   }

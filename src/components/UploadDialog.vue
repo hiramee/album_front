@@ -2,12 +2,12 @@
   <CommonDialog
     :dialogVisibleProp.sync="uploadVisible"
     title="Upload"
-    :okCb="overrideOkCb"
-    :cancelCb="overrideCancelCb"
+    :okCb="okCb"
+    :cancelCb="cancelCb"
     :width="500"
   >
     <validation-observer ref="observer">
-      <validation-provider v-slot="{ errors }" name="file" rules="required">
+      <validation-provider v-slot="{ errors }" name="File" rules="required">
         <v-file-input
           accept="image/*"
           :error-messages="errors"
@@ -16,7 +16,7 @@
           required
         ></v-file-input>
       </validation-provider>
-      <validation-provider v-slot="{ errors }" name="tags" rules="required">
+      <validation-provider v-slot="{ errors }" name="Tags" rules="required">
         <v-combobox
           v-model="selected"
           :items="items"
@@ -37,6 +37,10 @@ import { Component, PropSync, Prop, Vue } from "vue-property-decorator";
 import { required } from "vee-validate/dist/rules";
 import { extend, ValidationObserver, ValidationProvider } from "vee-validate";
 import CommonDialog from "./CommonDialog.vue";
+import PicturesAdapter from "../adapters/PicturesAdapter";
+import ErrorRepository from "@/repository/errorRepository";
+import MessageRepository from "@/repository/messageRepository";
+import { HttpError } from "@/errors/error";
 
 extend("required", {
   ...required,
@@ -62,12 +66,6 @@ export default class uploadDialog extends Vue {
   @PropSync("uploadVisibleProp", { type: Boolean, required: true })
   private uploadVisible!: boolean;
 
-  @Prop({ type: Function, required: true })
-  private okCb!: (picture: string, ext: string, tags: Array<string>) => void;
-
-  @Prop({ type: Function, required: true })
-  private cancelCb!: () => void;
-
   private file: File | null = null;
 
   private get items(): Array<string> {
@@ -76,7 +74,7 @@ export default class uploadDialog extends Vue {
 
   private selected: Array<string> = [];
 
-  private async overrideOkCb() {
+  private async okCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid) {
       const reader = new FileReader();
@@ -86,7 +84,7 @@ export default class uploadDialog extends Vue {
             .toString()
             .substr(reader.result.toString().indexOf(",") + 1);
           const ext = this.file?.name.substr(this.file?.name.indexOf(".") + 1);
-          this.okCb(picture, ext!, this.selected);
+          this.upload(picture, ext!, this.selected);
         }
       };
       if (this.file) {
@@ -95,9 +93,25 @@ export default class uploadDialog extends Vue {
     }
   }
 
-  private overrideCancelCb() {
+  private upload(picture: string, ext: string, tags: Array<string>) {
+    PicturesAdapter.postPicture({ picture: picture, ext: ext, tags: tags })
+      .then(() => {
+        this.clear();
+        this.uploadVisible = false;
+        MessageRepository.handleSuccess(this, "Upload Success");
+      })
+      .catch((error: HttpError) => {
+        ErrorRepository.handleHttpError(
+          this,
+          error.statusCode,
+          JSON.stringify(error.responseData)
+        );
+      });
+  }
+
+  private cancelCb() {
     this.clear();
-    this.cancelCb();
+    this.uploadVisible = false;
   }
 
   private clear() {

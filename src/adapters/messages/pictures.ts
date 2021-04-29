@@ -14,3 +14,7 @@ export interface PicturesResponseItem {
     picture: string;
     fileName: string;
 }
+
+export interface PutPictureRequest {
+    tags: Array<String>;
+}

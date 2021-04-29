@@ -9,6 +9,7 @@ import {
 import * as AWS from 'aws-sdk';
 import { CognitoIdentityCredentials } from 'aws-sdk';
 import { environment } from '../consts/consts';
+import { SessionStorageAdapter } from "@/adapters/SessionStorageAdapter";
 
 class CognitoService {
     userPool: CognitoUserPool;
@@ -69,6 +70,7 @@ class CognitoService {
                     const creds: CognitoIdentityCredentials = this.buildCognitoCreds(result);
                     AWS.config.credentials = creds;
                     this.cognitoCreds = creds;
+                    SessionStorageAdapter.postLogin(result.getIdToken().getJwtToken());
                     resolve(result);
                 },
                 onFailure: (err) => {
@@ -89,7 +91,8 @@ class CognitoService {
     }
 
     logout() {
-        this.userPool!.getCurrentUser()!.signOut();
+        this.userPool.getCurrentUser()?.signOut();
+        SessionStorageAdapter.postLogout();
     }
 
     getCredentials(): Promise<AWS.CognitoIdentityCredentials> {
@@ -122,6 +125,29 @@ class CognitoService {
                         reject(err);
                     } else if (!session.isValid()) {
                         resolve(session);
+                    }
+                });
+            }
+        });
+    }
+
+    async changePassword(oldPassword: string, newPassword: string): Promise<void> {
+        const cognitoUser = this.userPool.getCurrentUser();
+        return new Promise((resolve, reject) => {
+            if (cognitoUser === null) {
+                reject(cognitoUser);
+            } else {
+                // TODO 共通化
+                cognitoUser.getSession((error: Error) => {
+                    if (error) {
+                        reject(error);
+                    }
+                });
+                cognitoUser.changePassword(oldPassword, newPassword, (error) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve();
                     }
                 });
             }
