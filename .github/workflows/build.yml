@@ -1,0 +1,36 @@
+name: Hello World
+on: push
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 15.8.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: "15.8.0"
+          check-latest: true
+      - run: npm ci
+      - run: npm run build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifact
+          path: dist
+      - name: Configure AWS credentials
+        if: github.ref == 'refs/heads/master'
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEPLOYER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEPLOYER_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+      - name: clean S3
+        if: github.ref == 'refs/heads/master'
+        working-directory: dist
+        run: aws s3 rm ${{ secrets.S3_BUCKET_URI }} --recursive
+      - name: deploy to S3
+        if: github.ref == 'refs/heads/master'
+        working-directory: dist
+        run: aws s3 sync . ${{ secrets.S3_BUCKET_URI }}
