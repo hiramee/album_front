@@ -1,4 +1,4 @@
-export const BASE_URL = "https://3bkdc4rr6l.execute-api.ap-northeast-1.amazonaws.com/Prod/";
+export const BASE_URL = "https://album.hiramengo.com/Prod/";
 export const AUTH_KEY = "auth-key";
 export const environment = {
     production: false,
