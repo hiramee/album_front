@@ -9,7 +9,7 @@ export default class AdstractAdapter {
                 url: BASE_URL + path,
                 method: httpMethod,
                 headers: {
-                    "X-Authorization": sessionStorage.getItem(AUTH_KEY)
+                    "x-authorization": sessionStorage.getItem(AUTH_KEY)
                 },
                 data: parameter
             }).then(async (res: AxiosResponse) => resolve(res.data))
