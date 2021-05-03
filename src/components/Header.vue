@@ -3,10 +3,12 @@
     <nav class="navbar">
       <ul class="nav mr-auto mt-2 mt-lg-0">
         <li class="nav-item">
-          <button class="btn">Home</button>
+          <button class="btn" v-if="isLogin" @click="onClickAlbum">
+            Album
+          </button>
         </li>
       </ul>
-      <ul class="nav">
+      <ul class="nav mr-5">
         <li class="nav-item mx-1">
           <button class="btn btn-light" @click="onClickSignin">Sign in</button>
         </li>
@@ -27,6 +29,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import SigninDialog from "./SigninDialog.vue";
 import SignupDialog from "./SignupDialog.vue";
+import { SessionStorageAdapter } from "@/adapters/SessionStorageAdapter";
 @Component({
   components: { SigninDialog, SignupDialog },
 })
@@ -41,6 +44,14 @@ export default class Header extends Vue {
 
   private onClickSignup() {
     this.signupVisible = true;
+  }
+
+  private onClickAlbum() {
+    this.$router.push("/album");
+  }
+
+  private get isLogin(): boolean {
+    return SessionStorageAdapter.isLogin();
   }
 }
 </script>

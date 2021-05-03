@@ -1,15 +1,12 @@
 <template>
   <div class="album">
     <UserHeader :onClickSearchCb="onClickSearchCb" />
-    <v-row>
-      <v-col cols="11" />
-      <v-col cols="1">
-        <v-btn icon @click="onClickUploadDialog">
-          <v-icon>mdi-cloud-upload-outline</v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
-    <v-card class="image-container">
+    <div class="d-flex ml-10">
+      <v-btn icon @click="onClickUploadDialog">
+        <v-icon>mdi-cloud-upload-outline</v-icon>
+      </v-btn>
+    </div>
+    <v-card class="image-container mx-10">
       <v-card
         v-for="p in displayPictures"
         :key="p.fileName"

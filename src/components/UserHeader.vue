@@ -1,9 +1,9 @@
 <template>
   <div>
     <nav class="navbar">
-      <ul class="nav mr-auto mr-1 my-2 mt-lg-0">
+      <ul class="nav mr-1 my-2">
         <li class="nav-item">
-          <button class="btn">Home</button>
+          <button class="btn" @click="onClickHome">Home</button>
         </li>
       </ul>
       <v-autocomplete
@@ -14,13 +14,18 @@
         chips
         small-chips
         multiple
-        class="mx-1 my-2"
+        height="20"
+        class="ml-6"
       ></v-autocomplete>
-      <v-btn icon @click="onClickSearch">
-        <v-icon>mdi-magnify</v-icon>
-      </v-btn>
-      <ul class="nav my-2 mt-lg-0">
-        <li class="nav-item mx-1">
+      <ul class="nav my-2">
+        <li class="nav-item">
+          <v-btn icon @click="onClickSearch">
+            <v-icon>mdi-magnify</v-icon>
+          </v-btn>
+        </li>
+      </ul>
+      <ul class="nav mr-6 my-2 mt-lg-0">
+        <li>
           <v-menu :offset-y="offset">
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon v-bind="attrs" v-on="on">
@@ -111,6 +116,10 @@ export default class UserHeader extends Vue {
       });
   }
 
+  private onClickHome() {
+    this.$router.push("/");
+  }
+
   created() {
     this.refreshTagsFromServer();
     this.timerID = setInterval(() => this.refreshTagsFromServer(), 10000);
@@ -121,3 +130,8 @@ export default class UserHeader extends Vue {
   }
 }
 </script>
+<style scoped>
+.v-autocomplete {
+  height: 40px;
+}
+</style>
