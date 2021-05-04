@@ -88,7 +88,7 @@
           ><a href="https://github.com/hiramee/album_server" class="mx-2"
             >Server</a
           >
-          <a href="https://github.com/hiramee/album_front">Client</a>
+          <a href="https://github.com/hiramee/album_front">Front</a>
         </div>
         <div>
           <v-icon>mdi-email-outline</v-icon>

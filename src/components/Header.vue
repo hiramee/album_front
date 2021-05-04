@@ -10,7 +10,9 @@
       </ul>
       <ul class="nav mr-5">
         <li class="nav-item mx-1">
-          <button class="btn btn-light" @click="onClickSignin">Sign in</button>
+          <button class="btn btn-light" v-if="!isLogin" @click="onClickSignin">
+            Sign in
+          </button>
         </li>
 
         <li class="nav-item mx-1">
