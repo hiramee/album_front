@@ -1,5 +1,5 @@
 export interface PostPictureRequest {
-    tags: Array<String>;
+    tags: Array<string>;
     picture: string;
     ext: string;
 }
@@ -10,8 +10,8 @@ export interface GetPicturesResponse {
 
 export interface PicturesResponseItem {
     id: string;
-    tags: Array<String>;
-    picture: string;
+    tags: Array<string>;
+    objectKey: string;
     fileName: string;
 }
 

@@ -13,30 +13,13 @@
         class="ma-1 image-container__card"
         width="256"
       >
-        <v-img
-          :src="p.url"
-          :lazy-src="p.url"
-          class="grey lighten-2"
-          width="256"
-          @click="onClickImage(p)"
-        >
-          <template v-slot:placeholder>
-            <v-row class="fill-height ma-0" align="center" justify="center">
-              <v-progress-circular
-                indeterminate
-                color="grey lighten-5"
-              ></v-progress-circular>
-            </v-row>
-          </template>
-        </v-img>
+        <ImageItem :fileData="p" width="100%" :clickCb="onClickImage" />
       </v-card>
     </v-card>
     <UploadDialog :uploadVisibleProp.sync="uploadVisible" />
     <PictureDetailDialog
       :pictureDetailDialogVisibleProp.sync="pictureDetailDialogVisible"
-      :objectKey="selectedKey"
       :picture="selectedPicture"
-      :tags="selectedTags"
     />
   </div>
 </template>
@@ -49,12 +32,16 @@ import PicturesAdapter from "../adapters/PicturesAdapter";
 import PictureDetailDialog from "../components/PictureDetailDialog.vue";
 import ErrorRepository from "@/repository/errorRepository";
 import { HttpError } from "@/errors/error";
+import S3Service from "@/adapters/s3";
+import ImageItem from "@/components/ImageItem.vue";
+import { DisplayPictureData } from "@/dto/pictures";
 
 @Component({
   components: {
     UserHeader,
     UploadDialog,
     PictureDetailDialog,
+    ImageItem,
   },
 })
 export default class Album extends Vue {
@@ -62,47 +49,46 @@ export default class Album extends Vue {
 
   private pictureDetailDialogVisible = false;
 
-  private displayPictures: Array<any> = [];
+  private displayPictures: Array<DisplayPictureData> = [];
 
   private onClickUploadDialog() {
     this.uploadVisible = true;
   }
 
-  private selectedKey = "";
+  private selectedPicture: DisplayPictureData | null = null;
 
-  private selectedPicture = "";
-
-  private selectedTags: Array<string> = [];
-
-  private onClickSearchCb(tags: Array<string>) {
-    PicturesAdapter.getPictures(tags)
-      .then((res) => {
-        this.displayPictures = res.pictures.map((e) => {
+  private async onClickSearchCb(tags: Array<string>) {
+    try {
+      const res = await PicturesAdapter.getPictures(tags);
+      this.displayPictures = await Promise.all(
+        res.pictures.map(async (e) => {
+          const data = await S3Service.getFile(e.objectKey);
           return {
             id: e.id,
-            url:
-              "data:image/" +
-              e.fileName.substr(e.fileName.indexOf(".") + 1) +
-              ";base64," +
-              e.picture,
+            objectKey: e.objectKey,
+            file: new Blob([data.Body], { type: data.ContentType }),
             fileName: e.fileName,
             tags: e.tags,
           };
-        });
-      })
-      .catch((error: HttpError) => {
+        })
+      );
+    } catch (error) {
+      if (error instanceof HttpError) {
         ErrorRepository.handleHttpError(
           this,
           error.statusCode,
           JSON.stringify(error.responseData)
         );
-      });
+      } else {
+        // AWSError and else
+        const message = error.message ?? "Internal Server Error.";
+        ErrorRepository.handleHttpError(this, 500, message);
+      }
+    }
   }
 
-  private onClickImage(p: any) {
-    this.selectedKey = p.id;
-    this.selectedPicture = p.url;
-    this.selectedTags = p.tags;
+  private onClickImage(p: DisplayPictureData) {
+    this.selectedPicture = p;
     this.pictureDetailDialogVisible = true;
   }
 }

@@ -6,21 +6,7 @@
     :cancelCb="cancelCb"
     dialogWidth="80%"
   >
-    <v-img
-      :src="picture"
-      :lazy-src="picture"
-      class="grey lighten-2"
-      width="100%"
-    >
-      <template v-slot:placeholder>
-        <v-row class="fill-height ma-0" align="center" justify="center">
-          <v-progress-circular
-            indeterminate
-            color="grey lighten-5"
-          ></v-progress-circular>
-        </v-row>
-      </template>
-    </v-img>
+    <ImageItem :fileData="picture" width="100%" v-if="showPicture" />
     <validation-observer ref="observer">
       <validation-provider v-slot="{ errors }" name="tags" rules="required">
         <v-combobox
@@ -54,6 +40,8 @@ import MessageRepository from "@/repository/messageRepository";
 import { HttpError } from "@/errors/error";
 import { PutPictureRequest } from "../adapters/messages/pictures";
 import _ from "lodash";
+import ImageItem from "@/components/ImageItem.vue";
+import { DisplayPictureData } from "@/dto/pictures";
 
 extend("required", {
   ...required,
@@ -69,6 +57,7 @@ interface PictureDetailDialogType extends Vue {
     CommonDialog,
     ValidationProvider,
     ValidationObserver,
+    ImageItem,
   },
 })
 export default class PictureDetailDialog extends Vue {
@@ -79,17 +68,23 @@ export default class PictureDetailDialog extends Vue {
   @PropSync("pictureDetailDialogVisibleProp", { type: Boolean, required: true })
   private pictureDetailDialogVisible!: boolean;
 
-  @Prop({ type: String, required: true, default: "" })
-  private objectKey!: string;
+  private get objectKey(): string {
+    return this.picture?.objectKey || "";
+  }
 
-  @Prop({ type: String, required: true })
-  private picture!: string;
+  @Prop({ type: Object, required: false })
+  private picture: DisplayPictureData | null = null;
 
-  @Prop({ type: Array, required: true })
-  private tags!: Array<string>;
+  private tags(): Array<string> {
+    return this.picture?.tags || [];
+  }
 
   private get items(): Array<string> {
     return this.$store.state.tags;
+  }
+
+  private get showPicture() {
+    return this.pictureDetailDialogVisible && this.picture;
   }
 
   private selected: Array<string> = [];
@@ -133,7 +128,7 @@ export default class PictureDetailDialog extends Vue {
   }
 
   private clear() {
-    this.selected = _.cloneDeep(this.tags);
+    this.selected = _.cloneDeep(this.tags());
   }
 
   created() {
