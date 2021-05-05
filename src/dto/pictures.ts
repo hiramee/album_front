@@ -1,7 +1,6 @@
 export interface DisplayPictureData {
     id: string;
-    file: Blob;
     fileName: string;
-    objectKey: string;
+    url: string;
     tags: Array<string>;
 }

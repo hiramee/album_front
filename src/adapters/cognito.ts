@@ -70,7 +70,7 @@ class CognitoService {
                     const creds: CognitoIdentityCredentials = this.buildCognitoCreds(result);
                     AWS.config.credentials = creds;
                     this.cognitoCreds = creds;
-                    SessionStorageAdapter.postLogin(result.getIdToken().getJwtToken(), creds.identityId);
+                    SessionStorageAdapter.postLogin(result.getIdToken().getJwtToken());
                     resolve(result);
                 },
                 onFailure: (err) => {

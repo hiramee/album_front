@@ -11,10 +11,13 @@ export interface GetPicturesResponse {
 export interface PicturesResponseItem {
     id: string;
     tags: Array<string>;
-    objectKey: string;
     fileName: string;
 }
 
 export interface PutPictureRequest {
-    tags: Array<String>;
+    tags: Array<string>;
+}
+
+export interface GetPictureResponse {
+    picture: string;
 }

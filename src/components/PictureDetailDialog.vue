@@ -22,9 +22,7 @@
       </validation-provider>
     </validation-observer>
     <div>
-      <v-btn color="error" text @click="deleteCb(objectKey)" width="100%"
-        >Delete</v-btn
-      >
+      <v-btn color="error" text @click="deleteCb()" width="100%">Delete</v-btn>
     </div>
   </CommonDialog>
 </template>
@@ -68,10 +66,6 @@ export default class PictureDetailDialog extends Vue {
   @PropSync("pictureDetailDialogVisibleProp", { type: Boolean, required: true })
   private pictureDetailDialogVisible!: boolean;
 
-  private get objectKey(): string {
-    return this.picture?.objectKey || "";
-  }
-
   @Prop({ type: Object, required: false })
   private picture: DisplayPictureData | null = null;
 
@@ -112,7 +106,7 @@ export default class PictureDetailDialog extends Vue {
     this.pictureDetailDialogVisible = false;
   }
 
-  private deleteCb(objectKey: string) {
+  private deleteCb() {
     if (this.picture) {
       PicturesAdapter.deletePictures(this.picture.id)
         .then(() => {

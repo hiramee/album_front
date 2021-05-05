@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-img
-      :src="url"
-      :lazy-src="url"
+      :src="fileData.url"
+      :lazy-src="fileData.url"
       class="grey lighten-2"
       @click="clickCb(fileData)"
     >
@@ -32,14 +32,5 @@ export default class ImageItem extends Vue {
 
   @Prop({ type: String, required: true })
   private width!: string;
-
-  private get url(): string {
-    return URL.createObjectURL(this.fileData.file);
-  }
-
-  @Watch("url")
-  private onChangeFile(_: string, oldValue: string): void {
-    URL.revokeObjectURL(oldValue);
-  }
 }
 </script>

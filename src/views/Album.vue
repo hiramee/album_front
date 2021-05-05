@@ -32,9 +32,9 @@ import PicturesAdapter from "../adapters/PicturesAdapter";
 import PictureDetailDialog from "../components/PictureDetailDialog.vue";
 import ErrorRepository from "@/repository/errorRepository";
 import { HttpError } from "@/errors/error";
-import S3Service from "@/adapters/s3";
 import ImageItem from "@/components/ImageItem.vue";
 import { DisplayPictureData } from "@/dto/pictures";
+import { PicturesResponseItem } from "@/adapters/messages/pictures";
 
 @Component({
   components: {
@@ -62,14 +62,7 @@ export default class Album extends Vue {
       const res = await PicturesAdapter.getPictures(tags);
       this.displayPictures = await Promise.all(
         res.pictures.map(async (e) => {
-          const data = await S3Service.getFile(e.objectKey);
-          return {
-            id: e.id,
-            objectKey: e.objectKey,
-            file: new Blob([data.Body], { type: data.ContentType }),
-            fileName: e.fileName,
-            tags: e.tags,
-          };
+          return this.getPictureById(e);
         })
       );
     } catch (error) {
@@ -80,7 +73,6 @@ export default class Album extends Vue {
           JSON.stringify(error.responseData)
         );
       } else {
-        // AWSError and else
         const message = error.message ?? "Internal Server Error.";
         ErrorRepository.handleHttpError(this, 500, message);
       }
@@ -90,6 +82,28 @@ export default class Album extends Vue {
   private onClickImage(p: DisplayPictureData) {
     this.selectedPicture = p;
     this.pictureDetailDialogVisible = true;
+  }
+
+  private getPictureById(e: PicturesResponseItem): Promise<DisplayPictureData> {
+    return new Promise((resolve, reject) => {
+      PicturesAdapter.getPicture(e.id)
+        .then((response) => {
+          const data = {
+            id: e.id,
+            url:
+              "data:image/" +
+              e.fileName.substr(e.fileName.indexOf(".") + 1) +
+              ";base64," +
+              response.picture,
+            fileName: e.fileName,
+            tags: e.tags,
+          };
+          resolve(data);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 }
 </script>

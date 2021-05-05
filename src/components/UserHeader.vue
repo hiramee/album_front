@@ -66,7 +66,6 @@ import DeleteTagsDialog from "./DeleteTagsDialog.vue";
 import CognitoService from "@/adapters/cognito";
 import MessageRepository from "@/repository/messageRepository";
 import ChangePasswordDialog from "./ChangePasswordDialog.vue";
-import S3Service from "@/adapters/s3";
 
 @Component({ components: { DeleteTagsDialog, ChangePasswordDialog } })
 export default class UserHeader extends Vue {
