@@ -1,5 +1,6 @@
 export const BASE_URL = "https://album.hiramengo.com/Prod/";
 export const AUTH_KEY = "auth-key";
+export const ID_KEY = "identity-key";
 export const environment = {
     production: false,
 

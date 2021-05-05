@@ -91,9 +91,9 @@ export default class PictureDetailDialog extends Vue {
 
   private async okCb() {
     const isValid = await this.$refs.observer.validate();
-    if (isValid) {
+    if (isValid && this.picture) {
       const req: PutPictureRequest = { tags: this.selected };
-      PicturesAdapter.putPictures(this.objectKey, req)
+      PicturesAdapter.putPictures(this.picture.id, req)
         .then(() => {
           this.pictureDetailDialogVisible = false;
           MessageRepository.handleSuccess(this, "Update Success");
@@ -113,18 +113,20 @@ export default class PictureDetailDialog extends Vue {
   }
 
   private deleteCb(objectKey: string) {
-    PicturesAdapter.deletePictures(objectKey)
-      .then(() => {
-        this.pictureDetailDialogVisible = false;
-        MessageRepository.handleSuccess(this, "Delete Success");
-      })
-      .catch((error: HttpError) => {
-        ErrorRepository.handleHttpError(
-          this,
-          error.statusCode,
-          JSON.stringify(error.responseData)
-        );
-      });
+    if (this.picture) {
+      PicturesAdapter.deletePictures(this.picture.id)
+        .then(() => {
+          this.pictureDetailDialogVisible = false;
+          MessageRepository.handleSuccess(this, "Delete Success");
+        })
+        .catch((error: HttpError) => {
+          ErrorRepository.handleHttpError(
+            this,
+            error.statusCode,
+            JSON.stringify(error.responseData)
+          );
+        });
+    }
   }
 
   private clear() {
