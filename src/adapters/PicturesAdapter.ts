@@ -1,6 +1,6 @@
 import { HttpMethods } from "@/enums/httpMethods";
 import AbstractAdapter from "./abstractAdapter";
-import { PostPictureRequest, GetPicturesResponse, PutPictureRequest } from "./messages/pictures";
+import { PostPictureRequest, GetPicturesResponse, PutPictureRequest, GetPictureResponse } from "./messages/pictures";
 
 class PicturesAdapter extends AbstractAdapter {
     public postPicture(parameter: PostPictureRequest): Promise<void> {
@@ -22,6 +22,11 @@ class PicturesAdapter extends AbstractAdapter {
     public deletePictures(id: string): Promise<void> {
         const url = "pictures/" + id;
         return this.requestWithAuth(url, null, HttpMethods.DELETE);
+    }
+
+    public getPicture(id: string): Promise<GetPictureResponse> {
+        const url = "pictures/" + id;
+        return this.requestWithAuth(url, null, HttpMethods.GET);
     }
 }
 

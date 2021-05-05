@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { BASE_URL, AUTH_KEY, ID_KEY } from '../consts/consts';
+import { BASE_URL, AUTH_KEY } from '../consts/consts';
 import { HttpMethods } from "@/enums/httpMethods";
 import { HttpError } from "@/errors/error";
 
@@ -10,8 +10,7 @@ export default class AdstractAdapter {
                 url: BASE_URL + path,
                 method: httpMethod,
                 headers: {
-                    "x-authorization": sessionStorage.getItem(AUTH_KEY),
-                    "x-identity": sessionStorage.getItem(ID_KEY),
+                    "x-authorization": sessionStorage.getItem(AUTH_KEY)
                 },
                 data: parameter
             }).then(async (res: AxiosResponse) => resolve(res.data))

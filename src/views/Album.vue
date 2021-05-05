@@ -32,7 +32,6 @@ import PicturesAdapter from "../adapters/PicturesAdapter";
 import PictureDetailDialog from "../components/PictureDetailDialog.vue";
 import ErrorRepository from "@/repository/errorRepository";
 import { HttpError } from "@/errors/error";
-import S3Service from "@/adapters/s3";
 import ImageItem from "@/components/ImageItem.vue";
 import { DisplayPictureData } from "@/dto/pictures";
 
@@ -62,11 +61,14 @@ export default class Album extends Vue {
       const res = await PicturesAdapter.getPictures(tags);
       this.displayPictures = await Promise.all(
         res.pictures.map(async (e) => {
-          const data = await S3Service.getFile(e.objectKey);
+          const data = await PicturesAdapter.getPicture(e.id);
           return {
             id: e.id,
-            objectKey: e.objectKey,
-            file: new Blob([data.Body], { type: data.ContentType }),
+            url:
+              "data:image/" +
+              e.fileName.substr(e.fileName.indexOf(".") + 1) +
+              ";base64," +
+              data.picture,
             fileName: e.fileName,
             tags: e.tags,
           };
@@ -80,7 +82,6 @@ export default class Album extends Vue {
           JSON.stringify(error.responseData)
         );
       } else {
-        // AWSError and else
         const message = error.message ?? "Internal Server Error.";
         ErrorRepository.handleHttpError(this, 500, message);
       }
