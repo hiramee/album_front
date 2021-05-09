@@ -30,36 +30,43 @@ class CognitoService {
         this.userPool = new CognitoUserPool(this.poolData);
     }
 
-    signUp(username: string, password: string) {
+    signUp(instance: Vue, username: string, password: string) {
+        instance.$store.commit("setLoading", true);
         const dataEmail = { Name: 'email', Value: username };
         const attributeList: Array<CognitoUserAttribute> = [];
         attributeList.push(new CognitoUserAttribute(dataEmail));
         return new Promise((resolve, reject) => {
             this.userPool.signUp(username, password, attributeList, [], (err, result) => {
                 if (err) {
+                    instance.$store.commit("setLoading", false);
                     reject(err);
                 } else {
+                    instance.$store.commit("setLoading", false);
                     resolve(result);
                 }
             });
         });
     }
 
-    confirmation(username: string, confirmationCode: string) {
+    confirmation(instance: Vue, username: string, confirmationCode: string) {
+        instance.$store.commit("setLoading", true);
         const userData = { Username: username, Pool: this.userPool };
         const cognitoUser = new CognitoUser(userData);
         return new Promise((resolve, reject) => {
             cognitoUser.confirmRegistration(confirmationCode, true, (err, result) => {
                 if (err) {
+                    instance.$store.commit("setLoading", false);
                     reject(err);
                 } else {
+                    instance.$store.commit("setLoading", false);
                     resolve(result);
                 }
             });
         });
     }
 
-    login(username: string, password: string) {
+    login(instance: Vue, username: string, password: string) {
+        instance.$store.commit("setLoading", true);
         const userData = { Username: username, Pool: this.userPool };
         const cognitoUser = new CognitoUser(userData);
         const authenticationData = { Username: username, Password: password };
@@ -71,9 +78,11 @@ class CognitoService {
                     AWS.config.credentials = creds;
                     this.cognitoCreds = creds;
                     SessionStorageAdapter.postLogin(result.getIdToken().getJwtToken());
+                    instance.$store.commit("setLoading", false);
                     resolve(result);
                 },
                 onFailure: (err) => {
+                    instance.$store.commit("setLoading", false);
                     reject(err);
                 },
             });
@@ -90,9 +99,11 @@ class CognitoService {
         });
     }
 
-    logout() {
+    logout(instance: Vue) {
+        instance.$store.commit("setLoading", true);
         this.userPool.getCurrentUser()?.signOut();
         SessionStorageAdapter.postLogout();
+        instance.$store.commit("setLoading", false);
     }
 
     getCredentials(): Promise<AWS.CognitoIdentityCredentials> {
@@ -131,22 +142,27 @@ class CognitoService {
         });
     }
 
-    async changePassword(oldPassword: string, newPassword: string): Promise<void> {
+    async changePassword(instance: Vue, oldPassword: string, newPassword: string): Promise<void> {
+        instance.$store.commit("setLoading", true);
         const cognitoUser = this.userPool.getCurrentUser();
         return new Promise((resolve, reject) => {
             if (cognitoUser === null) {
+                instance.$store.commit("setLoading", false);
                 reject(cognitoUser);
             } else {
                 // TODO 共通化
                 cognitoUser.getSession((error: Error) => {
                     if (error) {
+                        instance.$store.commit("setLoading", false);
                         reject(error);
                     }
                 });
                 cognitoUser.changePassword(oldPassword, newPassword, (error) => {
                     if (error) {
+                        instance.$store.commit("setLoading", false);
                         reject(error);
                     } else {
+                        instance.$store.commit("setLoading", false);
                         resolve();
                     }
                 });

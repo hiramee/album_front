@@ -21,6 +21,9 @@
       :pictureDetailDialogVisibleProp.sync="pictureDetailDialogVisible"
       :picture="selectedPicture"
     />
+    <v-overlay :value="isLoading" z-index="500">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </div>
 </template>
 
@@ -59,7 +62,7 @@ export default class Album extends Vue {
 
   private async onClickSearchCb(tags: Array<string>) {
     try {
-      const res = await PicturesAdapter.getPictures(tags);
+      const res = await PicturesAdapter.getPictures(this, tags);
       this.displayPictures = await Promise.all(
         res.pictures.map(async (e) => {
           return this.getPictureById(e);
@@ -86,7 +89,7 @@ export default class Album extends Vue {
 
   private getPictureById(e: PicturesResponseItem): Promise<DisplayPictureData> {
     return new Promise((resolve, reject) => {
-      PicturesAdapter.getPicture(e.id)
+      PicturesAdapter.getPicture(this, e.id)
         .then((response) => {
           const data = {
             id: e.id,
@@ -104,6 +107,10 @@ export default class Album extends Vue {
           reject(error);
         });
     });
+  }
+
+  private get isLoading(): boolean {
+    return this.$store.state.isLoading;
   }
 }
 </script>

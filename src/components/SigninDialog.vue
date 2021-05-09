@@ -81,7 +81,7 @@ export default class SigninDialog extends Vue {
   private async okCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid) {
-      CognitoService.login(this.email, this.password)
+      CognitoService.login(this, this.email, this.password)
         .then(() => {
           this.signinVisible = false;
           MessageRepository.handleSuccess(this, "Signin Success");

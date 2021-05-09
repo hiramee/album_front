@@ -6,7 +6,7 @@ export default class ErrorRepository {
     public static handleHttpError(instance: Vue, code: number, message: string | null) {
         if (code === 401) {
             this.handleServerError(instance, "Session Invalidated");
-            CognitoService.logout();
+            CognitoService.logout(instance);
             instance.$router.push('/');
         } else if (code >= 400 && code < 500) {
             this.handleClientError(instance, message);

@@ -91,7 +91,7 @@ export default class UserHeader extends Vue {
   }
 
   private onClickSignOut() {
-    CognitoService.logout();
+    CognitoService.logout(this);
     this.$router.push("/");
     MessageRepository.handleSuccess(this, "Signout Success");
   }

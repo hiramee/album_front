@@ -112,7 +112,7 @@ export default class SignupDialog extends Vue {
   private async okCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid && !this.isConfirmation) {
-      CognitoService.signUp(this.email, this.password)
+      CognitoService.signUp(this, this.email, this.password)
         .then(() => {
           this.isConfirmation = true;
           MessageRepository.handleSuccess(
@@ -131,7 +131,7 @@ export default class SignupDialog extends Vue {
         });
     }
     if (isValid && this.isConfirmation) {
-      CognitoService.confirmation(this.email, this.confirmationCode)
+      CognitoService.confirmation(this, this.email, this.confirmationCode)
         .then(() => {
           this.signupVisible = false;
           this.isConfirmation = false;
@@ -154,6 +154,7 @@ export default class SignupDialog extends Vue {
     this.password = "";
     this.confirmationCode = "";
     this.isConfirmation = false;
+    this.signupVisible = false;
   }
 }
 </script>

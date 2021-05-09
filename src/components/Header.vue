@@ -55,5 +55,9 @@ export default class Header extends Vue {
   private get isLogin(): boolean {
     return SessionStorageAdapter.isLogin();
   }
+
+  private get isLoading(): boolean {
+    return this.$store.state.isLoading;
+  }
 }
 </script>

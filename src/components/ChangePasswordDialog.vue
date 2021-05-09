@@ -83,7 +83,7 @@ export default class ChangePasswordDialog extends Vue {
   private async okCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid) {
-      CognitoService.changePassword(this.oldPassword, this.newPassword)
+      CognitoService.changePassword(this, this.oldPassword, this.newPassword)
         .then(() => {
           MessageRepository.handleSuccess(this, "Change password Success");
           this.changePasswordVisible = false;

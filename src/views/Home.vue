@@ -96,6 +96,9 @@
         </div>
       </v-card>
     </v-footer>
+    <v-overlay :value="isLoading" z-index="500">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </div>
 </template>
 
@@ -108,7 +111,11 @@ import Header from "../components/Header.vue";
     Header,
   },
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+  private get isLoading(): boolean {
+    return this.$store.state.isLoading;
+  }
+}
 </script>
 <style scoped>
 section {

@@ -3,30 +3,30 @@ import AbstractAdapter from "./abstractAdapter";
 import { PostPictureRequest, GetPicturesResponse, PutPictureRequest, GetPictureResponse } from "./messages/pictures";
 
 class PicturesAdapter extends AbstractAdapter {
-    public postPicture(parameter: PostPictureRequest): Promise<void> {
-        return this.requestWithAuth("pictures", parameter, HttpMethods.POST);
+    public postPicture(instance: Vue, parameter: PostPictureRequest): Promise<void> {
+        return this.requestWithAuth(instance, "pictures", parameter, HttpMethods.POST);
     }
 
-    public getPictures(tags: Array<string>): Promise<GetPicturesResponse> {
+    public getPictures(instance: Vue, tags: Array<string>): Promise<GetPicturesResponse> {
         let url = "pictures?tag=";
         tags.forEach(e => url += e + ",");
-        return this.requestWithAuth(url.substring(0, url.length - 1), null, HttpMethods.GET);
+        return this.requestWithAuth(instance, url.substring(0, url.length - 1), null, HttpMethods.GET);
     }
 
 
-    public putPictures(id: string, param: PutPictureRequest): Promise<void> {
+    public putPictures(instance: Vue, id: string, param: PutPictureRequest): Promise<void> {
         const url = "pictures/" + id;
-        return this.requestWithAuth(url, param, HttpMethods.PUT);
+        return this.requestWithAuth(instance, url, param, HttpMethods.PUT);
     }
 
-    public deletePictures(id: string): Promise<void> {
+    public deletePictures(instance: Vue, id: string): Promise<void> {
         const url = "pictures/" + id;
-        return this.requestWithAuth(url, null, HttpMethods.DELETE);
+        return this.requestWithAuth(instance, url, null, HttpMethods.DELETE);
     }
 
-    public getPicture(id: string): Promise<GetPictureResponse> {
+    public getPicture(instance: Vue, id: string): Promise<GetPictureResponse> {
         const url = "pictures/" + id;
-        return this.requestWithAuth(url, null, HttpMethods.GET);
+        return this.requestWithAuth(instance, url, null, HttpMethods.GET);
     }
 }
 

@@ -4,11 +4,11 @@ import { GetTagsResponse, DeleteTagsRequest } from "./messages/tags";
 
 class TagsAdapter extends AbstractAdapter {
     public getTags(): Promise<GetTagsResponse> {
-        return this.requestWithAuth("tags", null, HttpMethods.GET);
+        return this.requestWithAuthBackGround("tags", null, HttpMethods.GET);
     }
 
-    public deleteTags(param: DeleteTagsRequest): Promise<void> {
-        return this.requestWithAuth("tags/delete", param, HttpMethods.POST);
+    public deleteTags(instance: Vue, param: DeleteTagsRequest): Promise<void> {
+        return this.requestWithAuth(instance, "tags/delete", param, HttpMethods.POST);
     }
 }
 

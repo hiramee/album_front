@@ -94,7 +94,11 @@ export default class uploadDialog extends Vue {
   }
 
   private upload(picture: string, ext: string, tags: Array<string>) {
-    PicturesAdapter.postPicture({ picture: picture, ext: ext, tags: tags })
+    PicturesAdapter.postPicture(this, {
+      picture: picture,
+      ext: ext,
+      tags: tags,
+    })
       .then(() => {
         this.clear();
         this.uploadVisible = false;

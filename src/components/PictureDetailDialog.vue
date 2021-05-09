@@ -87,7 +87,7 @@ export default class PictureDetailDialog extends Vue {
     const isValid = await this.$refs.observer.validate();
     if (isValid && this.picture) {
       const req: PutPictureRequest = { tags: this.selected };
-      PicturesAdapter.putPictures(this.picture.id, req)
+      PicturesAdapter.putPictures(this, this.picture.id, req)
         .then(() => {
           this.pictureDetailDialogVisible = false;
           MessageRepository.handleSuccess(this, "Update Success");
@@ -108,7 +108,7 @@ export default class PictureDetailDialog extends Vue {
 
   private deleteCb() {
     if (this.picture) {
-      PicturesAdapter.deletePictures(this.picture.id)
+      PicturesAdapter.deletePictures(this, this.picture.id)
         .then(() => {
           this.pictureDetailDialogVisible = false;
           MessageRepository.handleSuccess(this, "Delete Success");

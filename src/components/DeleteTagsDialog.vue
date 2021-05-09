@@ -8,7 +8,7 @@
   >
     <validation-observer ref="observer">
       <validation-provider v-slot="{ errors }" name="tags" rules="required">
-        <v-combobox
+        <v-autocomplete
           v-model="selected"
           :items="items"
           :error-messages="errors"
@@ -17,7 +17,7 @@
           small-chips
           multiple
         >
-        </v-combobox>
+        </v-autocomplete>
       </validation-provider>
     </validation-observer>
   </CommonDialog>
@@ -69,7 +69,7 @@ export default class DeleteTagsDialog extends Vue {
   private async okCb() {
     const isValid = await this.$refs.observer.validate();
     if (isValid) {
-      TagsAdapter.deleteTags({ tags: this.selected })
+      TagsAdapter.deleteTags(this, { tags: this.selected })
         .then(() => {
           MessageRepository.handleSuccess(this, "Delete Success");
           this.clear();
