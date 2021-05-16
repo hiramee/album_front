@@ -4,7 +4,7 @@ import { HttpMethods } from "@/enums/httpMethods";
 import { HttpError } from "@/errors/error";
 
 /* eslint-disable @typescript-eslint/no-explicit-any,@typescript-eslint/explicit-module-boundary-types */
-export default class AdstractAdapter {
+export default class AbstractAdapter {
   protected requestWithAuthBackGround(
     path: string,
     parameter: any,
