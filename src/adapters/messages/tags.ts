@@ -1,7 +1,7 @@
 export interface GetTagsResponse {
-    tags: Array<String>;
+  tags: Array<string>;
 }
 
 export interface DeleteTagsRequest {
-    tags: Array<String>;
+  tags: Array<string>;
 }

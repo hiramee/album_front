@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { Component, PropSync, Prop, Vue } from "vue-property-decorator";
+import { Component, PropSync, Vue } from "vue-property-decorator";
 import { required } from "vee-validate/dist/rules";
 import { extend, ValidationObserver, ValidationProvider } from "vee-validate";
 import CommonDialog from "./CommonDialog.vue";
@@ -79,12 +79,12 @@ export default class uploadDialog extends Vue {
     if (isValid) {
       const reader = new FileReader();
       reader.onload = () => {
-        if (reader.result) {
+        if (reader.result && this.file) {
           const picture = reader.result
             .toString()
             .substr(reader.result.toString().indexOf(",") + 1);
-          const ext = this.file?.name.substr(this.file?.name.indexOf(".") + 1);
-          this.upload(picture, ext!, this.selected);
+          const ext = this.file.name.substr(this.file.name.indexOf(".") + 1);
+          this.upload(picture, ext, this.selected);
         }
       };
       if (this.file) {

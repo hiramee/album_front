@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { Component, PropSync, Prop, Vue } from "vue-property-decorator";
+import { Component, PropSync, Vue } from "vue-property-decorator";
 import { required, email } from "vee-validate/dist/rules";
 import { extend, ValidationObserver, ValidationProvider } from "vee-validate";
 import CommonDialog from "./CommonDialog.vue";

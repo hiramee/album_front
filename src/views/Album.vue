@@ -114,7 +114,7 @@ export default class Album extends Vue {
   }
 }
 </script>
-<style lang="scss" scoped >
+<style lang="scss" scoped>
 @media screen and (min-width: 769px) and (max-width: 2048px) {
   .image-container {
     column-count: 4;

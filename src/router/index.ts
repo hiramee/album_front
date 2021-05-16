@@ -20,8 +20,8 @@ const routes: Array<RouteConfig> = [
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/Album.vue"),
     meta: {
-      requiresAuth: true
-    }
+      requiresAuth: true,
+    },
   },
 ];
 
@@ -31,13 +31,13 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (SessionStorageAdapter.isLogin()) {
       next();
     } else {
       next({
-        path: '/',
-        query: { redirect: to.fullPath }
+        path: "/",
+        query: { redirect: to.fullPath },
       });
     }
   } else {

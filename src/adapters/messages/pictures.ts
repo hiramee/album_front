@@ -1,23 +1,23 @@
 export interface PostPictureRequest {
-    tags: Array<string>;
-    picture: string;
-    ext: string;
+  tags: Array<string>;
+  picture: string;
+  ext: string;
 }
 
 export interface GetPicturesResponse {
-    pictures: Array<PicturesResponseItem>;
+  pictures: Array<PicturesResponseItem>;
 }
 
 export interface PicturesResponseItem {
-    id: string;
-    tags: Array<string>;
-    fileName: string;
+  id: string;
+  tags: Array<string>;
+  fileName: string;
 }
 
 export interface PutPictureRequest {
-    tags: Array<string>;
+  tags: Array<string>;
 }
 
 export interface GetPictureResponse {
-    picture: string;
+  picture: string;
 }

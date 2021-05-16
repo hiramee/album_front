@@ -120,12 +120,12 @@ export default class UserHeader extends Vue {
     this.$router.push("/");
   }
 
-  created() {
+  created(): void {
     this.refreshTagsFromServer();
     this.timerID = setInterval(() => this.refreshTagsFromServer(), 10000);
   }
 
-  destroyed() {
+  destroyed(): void {
     clearInterval(this.timerID);
   }
 }

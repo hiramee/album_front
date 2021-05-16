@@ -127,12 +127,12 @@ export default class PictureDetailDialog extends Vue {
     this.selected = _.cloneDeep(this.tags());
   }
 
-  created() {
+  created(): void {
     this.clear();
   }
 
   @Watch("pictureDetailDialogVisible")
-  changeTags() {
+  changeTags(): void {
     this.clear();
   }
 }

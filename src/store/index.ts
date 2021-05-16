@@ -1,5 +1,5 @@
 import Vue from "vue";
-import Vuex from "vuex";;
+import Vuex from "vuex";
 
 Vue.use(Vuex);
 
@@ -14,12 +14,12 @@ export default new Vuex.Store<MyStoreInterface>({
     },
     setLoading: (state, isLoading: boolean) => {
       state.isLoading = isLoading;
-    }
+    },
   },
   modules: {},
 });
 
 interface MyStoreInterface {
   tags: Array<string>;
-  isLoading: boolean,
+  isLoading: boolean;
 }
