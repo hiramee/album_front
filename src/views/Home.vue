@@ -92,7 +92,7 @@
         </div>
         <div>
           <v-icon>mdi-email-outline</v-icon>
-          <span class="mx-2">hrm951227@gmail.com</span>
+          <span class="mx-2">hirameek@gmail.com</span>
         </div>
       </v-card>
     </v-footer>
