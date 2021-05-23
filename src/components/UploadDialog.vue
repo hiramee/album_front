@@ -7,7 +7,11 @@
     :width="500"
   >
     <validation-observer ref="observer">
-      <validation-provider v-slot="{ errors }" name="File" rules="required">
+      <validation-provider
+        v-slot="{ errors }"
+        name="File"
+        rules="required|image|size:2000"
+      >
         <v-file-input
           accept="image/*"
           :error-messages="errors"
@@ -34,7 +38,7 @@
 
 <script lang="ts">
 import { Component, PropSync, Vue } from "vue-property-decorator";
-import { required } from "vee-validate/dist/rules";
+import { required, image, size } from "vee-validate/dist/rules";
 import { extend, ValidationObserver, ValidationProvider } from "vee-validate";
 import CommonDialog from "./CommonDialog.vue";
 import PicturesAdapter from "../adapters/PicturesAdapter";
@@ -45,6 +49,16 @@ import { HttpError } from "@/errors/error";
 extend("required", {
   ...required,
   message: "{_field_} can not be empty",
+});
+
+extend("image", {
+  ...image,
+  message: "{_field_} should be image",
+});
+
+extend("size", {
+  ...size,
+  message: "filesize is over 2MB",
 });
 
 interface uploadDialogType extends Vue {
