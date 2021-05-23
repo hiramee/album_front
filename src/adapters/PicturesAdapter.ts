@@ -52,6 +52,11 @@ class PicturesAdapter extends AbstractAdapter {
     const url = "pictures/" + id;
     return this.requestWithAuth(instance, url, null, HttpMethods.GET);
   }
+
+  public getThumbNail(instance: Vue, id: string): Promise<GetPictureResponse> {
+    const url = "pictures/" + id + "?thumbnail=true";
+    return this.requestWithAuth(instance, url, null, HttpMethods.GET);
+  }
 }
 
 export default new PicturesAdapter();

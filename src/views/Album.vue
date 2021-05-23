@@ -65,7 +65,7 @@ export default class Album extends Vue {
       const res = await PicturesAdapter.getPictures(this, tags);
       this.displayPictures = await Promise.all(
         res.pictures.map(async (e) => {
-          return this.getPictureById(e);
+          return this.getPictureById(e, true);
         })
       );
     } catch (error) {
@@ -82,31 +82,57 @@ export default class Album extends Vue {
     }
   }
 
-  private onClickImage(p: DisplayPictureData) {
-    this.selectedPicture = p;
+  private async onClickImage(p: DisplayPictureData) {
+    this.selectedPicture = await this.getPictureById(p, false);
     this.pictureDetailDialogVisible = true;
   }
 
-  private getPictureById(e: PicturesResponseItem): Promise<DisplayPictureData> {
-    return new Promise((resolve, reject) => {
-      PicturesAdapter.getPicture(this, e.id)
-        .then((response) => {
-          const data = {
-            id: e.id,
-            url:
-              "data:image/" +
-              e.fileName.substr(e.fileName.indexOf(".") + 1) +
-              ";base64," +
-              response.picture,
-            fileName: e.fileName,
-            tags: e.tags,
-          };
-          resolve(data);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
+  private getPictureById(
+    e: PicturesResponseItem,
+    thumbNail: boolean
+  ): Promise<DisplayPictureData> {
+    if (thumbNail) {
+      return new Promise((resolve, reject) => {
+        PicturesAdapter.getThumbNail(this, e.id)
+          .then((response) => {
+            const data = {
+              id: e.id,
+              url:
+                "data:image/" +
+                "thumbNail" +
+                e.fileName.substr(e.fileName.indexOf(".") + 1) +
+                ";base64," +
+                response.picture,
+              fileName: e.fileName,
+              tags: e.tags,
+            };
+            resolve(data);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    } else {
+      return new Promise((resolve, reject) => {
+        PicturesAdapter.getPicture(this, e.id)
+          .then((response) => {
+            const data = {
+              id: e.id,
+              url:
+                "data:image/" +
+                e.fileName.substr(e.fileName.indexOf(".") + 1) +
+                ";base64," +
+                response.picture,
+              fileName: e.fileName,
+              tags: e.tags,
+            };
+            resolve(data);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    }
   }
 
   private get isLoading(): boolean {
