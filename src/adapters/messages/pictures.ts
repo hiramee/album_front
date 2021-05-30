@@ -20,4 +20,5 @@ export interface PutPictureRequest {
 
 export interface GetPictureResponse {
   picture: string;
+  fileName: string;
 }

@@ -6,13 +6,16 @@
         <v-icon>mdi-cloud-upload-outline</v-icon>
       </v-btn>
     </div>
-    <v-card class="image-container mx-10 px-1">
+    <v-card
+      v-if="displayPictures.length"
+      class="image-container mx-10 py-2 px-4"
+    >
       <v-card
         v-for="p in displayPictures"
         :key="p.fileName"
-        class="my-1 image-container__card"
+        class="my-2 image-container__card"
       >
-        <ImageItem :fileData="p" width="100%" :clickCb="onClickImage" />
+        <ImageItem :fileData="p" :clickCb="onClickImage" />
       </v-card>
     </v-card>
     <UploadDialog :uploadVisibleProp.sync="uploadVisible" />
@@ -98,7 +101,7 @@ export default class Album extends Vue {
               id: e.id,
               url:
                 "data:image/" +
-                e.fileName.substr(e.fileName.indexOf(".") + 1) +
+                response.fileName.substr(e.fileName.indexOf(".") + 1) +
                 ";base64," +
                 response.picture,
               fileName: e.fileName,
@@ -161,7 +164,7 @@ export default class Album extends Vue {
 }
 .image-container {
   column-fill: auto;
-  column-gap: 4px;
+  column-gap: 16px;
   &__card {
     display: inline-block;
   }
