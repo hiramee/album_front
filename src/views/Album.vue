@@ -6,12 +6,11 @@
         <v-icon>mdi-cloud-upload-outline</v-icon>
       </v-btn>
     </div>
-    <v-card class="image-container mx-10">
+    <v-card class="image-container mx-10 px-1">
       <v-card
         v-for="p in displayPictures"
         :key="p.fileName"
-        class="ma-1 image-container__card"
-        width="256"
+        class="my-1 image-container__card"
       >
         <ImageItem :fileData="p" width="100%" :clickCb="onClickImage" />
       </v-card>
@@ -99,7 +98,6 @@ export default class Album extends Vue {
               id: e.id,
               url:
                 "data:image/" +
-                "thumbNail" +
                 e.fileName.substr(e.fileName.indexOf(".") + 1) +
                 ";base64," +
                 response.picture,
@@ -163,7 +161,7 @@ export default class Album extends Vue {
 }
 .image-container {
   column-fill: auto;
-  column-gap: 15px;
+  column-gap: 4px;
   &__card {
     display: inline-block;
   }
