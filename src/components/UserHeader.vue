@@ -97,7 +97,8 @@ export default class UserHeader extends Vue {
   }
 
   private onClickChangePassword() {
-    this.changePasswordVisible = true;
+    MessageRepository.handleFailure(this, "Not available now");
+    // this.changePasswordVisible = true;
   }
 
   private onClickDeleteTags() {
