@@ -83,11 +83,13 @@ export default class SigninDialog extends Vue {
     if (isValid) {
       CognitoService.login(this, this.email, this.password)
         .then(() => {
+          this.$gtm.trackEvent({ event: "login", action: "succeed" });
           this.signinVisible = false;
           MessageRepository.handleSuccess(this, "Signin Success");
           this.$router.push("/album");
         })
         .catch((error) => {
+          this.$gtm.trackEvent({ event: "login", action: "failed" });
           // Cognitoのエラー構造に合わせる
           ErrorRepository.handleMessage(
             this,
