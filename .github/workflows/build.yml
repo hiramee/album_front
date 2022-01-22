@@ -20,17 +20,17 @@ jobs:
           name: build-artifact
           path: dist
       - name: Configure AWS credentials
-        if: github.ref == 'refs/heads/master'
+        # if: github.ref == 'refs/heads/master'
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.DEPLOYER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DEPLOYER_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-1
       - name: clean S3
-        if: github.ref == 'refs/heads/master'
+        # if: github.ref == 'refs/heads/master'
         working-directory: dist
         run: aws s3 rm ${{ secrets.S3_BUCKET_URI }} --recursive
       - name: deploy to S3
-        if: github.ref == 'refs/heads/master'
+        # if: github.ref == 'refs/heads/master'
         working-directory: dist
         run: aws s3 sync . ${{ secrets.S3_BUCKET_URI }}
