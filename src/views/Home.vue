@@ -7,9 +7,6 @@
         画像にタグを付けてクラウドに保存するアプリケーションです。<br />画像はアカウント別に保管されているので安心です。
       </p>
       <h2>使い方</h2>
-      <p class="subtitle-1">
-        ※hirameek@gmail.com/TestTest123!でログインできます。
-      </p>
       <v-expansion-panels>
         <v-expansion-panel>
           <v-expansion-panel-header>利用登録 </v-expansion-panel-header>
