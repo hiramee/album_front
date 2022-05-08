@@ -80,9 +80,8 @@ class CognitoService {
     return new Promise<CognitoUserSession>((resolve, reject) => {
       cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: (result: CognitoUserSession) => {
-          const creds: CognitoIdentityCredentials = this.buildCognitoCreds(
-            result
-          );
+          const creds: CognitoIdentityCredentials =
+            this.buildCognitoCreds(result);
           AWS.config.credentials = creds;
           this.cognitoCreds = creds;
           SessionStorageAdapter.postLogin(result.getIdToken().getJwtToken());

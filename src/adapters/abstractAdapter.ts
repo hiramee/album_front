@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { BASE_URL, AUTH_KEY } from "../consts/consts";
 import { HttpMethods } from "@/enums/httpMethods";
 import { HttpError } from "@/errors/error";
@@ -18,7 +18,7 @@ export default class AbstractAdapter {
           "x-authorization": sessionStorage.getItem(AUTH_KEY),
         },
         data: parameter,
-      })
+      } as AxiosRequestConfig)
         .then(async (res: AxiosResponse) => resolve(res.data))
         .catch(async (error: AxiosError) => {
           const err = error.response
@@ -44,7 +44,7 @@ export default class AbstractAdapter {
           "x-authorization": sessionStorage.getItem(AUTH_KEY),
         },
         data: parameter,
-      })
+      } as AxiosRequestConfig)
         .then(async (res: AxiosResponse) => resolve(res.data))
         .catch(async (error: AxiosError) => {
           const err = error.response

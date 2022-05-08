@@ -78,7 +78,7 @@ export default class Album extends Vue {
           JSON.stringify(error.responseData)
         );
       } else {
-        const message = error.message ?? "Internal Server Error.";
+        const message = "Internal Server Error.";
         ErrorRepository.handleHttpError(this, 500, message);
       }
     }
